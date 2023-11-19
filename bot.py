@@ -21,7 +21,7 @@ def load_data():
     with st.spinner(text="Loading and indexing the Word document – hang tight! This may take a moment."):
         # Use the DocxReader to load data from Word documents
         loader = DocxReader()
-        documents = loader.load_data(file=Path('./Task Nomenclature.docx'))
+        documents = loader.load_data(file='./Task Nomenclature.docx')
         
         # Additional processing if needed
         
