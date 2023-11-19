@@ -1,4 +1,5 @@
 import streamlit as st
+import docx2txt
 from llama_index import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms import OpenAI
 import openai
@@ -18,6 +19,15 @@ def load_data():
     with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
         reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
         docs = reader.load_data()
+             
+        # Additional code for handling .docx files using docx2txt
+        docx_files = [file_path for file_path in reader.get_files() if file_path.lower().endswith('.docx')]
+        for file_path in docx_files:
+            # Read text from .docx file using docx2txt
+            text = docx2txt.process(file_path)
+            # Create a Document object and append it to the list
+            docs.append(Document(content=text, metadata={"file_path": file_path}))
+                 
         service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.5, system_prompt="You are an expert on the Streamlit Python library and your job is to answer technical questions. Assume that all questions are related to the Streamlit Python library. Keep your answers technical and based on facts – do not hallucinate features."))
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
         return index
