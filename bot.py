@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import docx2txt
 from llama_index import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms import OpenAI
