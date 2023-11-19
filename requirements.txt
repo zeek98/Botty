@@ -3,6 +3,5 @@ openai
 llama-index
 nltk
 pypdf
-pathlib
 docx2txt
-os
+
