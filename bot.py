@@ -1,5 +1,4 @@
 import streamlit as st
-from pathlib import Path
 from llama_index import VectorStoreIndex, ServiceContext, Document, download_loader
 from llama_index.llms import OpenAI
 from llama_index import SimpleDirectoryReader
