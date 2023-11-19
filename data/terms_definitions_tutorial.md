@@ -1,436 +1,399 @@
-A Guide to Extracting Terms and Definitions
-Llama Index has many use cases (semantic search, summarization, etc.) that are well documented. However, this doesn't mean we can't apply Llama Index to very specific use cases!
-
-In this tutorial, we will go through the design process of using Llama Index to extract terms and definitions from text, while allowing users to query those terms later. Using Streamlit, we can provide an easy way to build frontend for running and testing all of this, and quickly iterate with our design.
+Task Nomenclature 
 
-This tutorial assumes you have Python3.9+ and the following packages installed:
+Task Nomenclature	1
+SPACE: ALL CLIENT SPACES – Billable (e.g., Homemade Method, Lulusar etc)	3
+SPACE: PRESALES & POCs [Non-billable]	15
+SPACE: TRAINING [Non-billable]	17
+SPACE: RECREATION & ADMINISTRATION [Non-billable]	19
+SPACE: SPRINT SESSIONS	25
+SPACE: 7 KNOTS DIGITAL	30
 
-llama-index
-streamlit
-At the base level, our objective is to take text from a document, extract terms and definitions, and then provide a way for users to query that knowledge base of terms and definitions. The tutorial will go over features from both Llama Index and Streamlit, and hopefully provide some interesting solutions for common problems that come up.
 
-The final version of this tutorial can be found here and a live hosted demo is available on Huggingface Spaces.
 
-Uploading Text
-Step one is giving users a way to upload documents. Let’s write some code using Streamlit to provide the interface for this! Use the following code and launch the app with streamlit run app.py.
 
-import streamlit as st
 
-st.title("🦙 Llama Index Term Extractor 🦙")
 
-document_text = st.text_area("Or enter raw text")
-if st.button("Extract Terms and Definitions") and document_text:
-    with st.spinner("Extracting..."):
-        extracted_terms = document text  # this is a placeholder!
-    st.write(extracted_terms)
-Super simple right! But you'll notice that the app doesn't do anything useful yet. To use llama_index, we also need to setup our OpenAI LLM. There are a bunch of possible settings for the LLM, so we can let the user figure out what's best. We should also let the user set the prompt that will extract the terms (which will also help us debug what works best).
 
-LLM Settings
-This next step introduces some tabs to our app, to separate it into different panes that provide different features. Let's create a tab for LLM settings and for uploading text:
 
-import os
-import streamlit as st
 
-DEFAULT_TERM_STR = (
-    "Make a list of terms and definitions that are defined in the context, "
-    "with one pair on each line. "
-    "If a term is missing it's definition, use your best judgment. "
-    "Write each line as as follows:\nTerm: <term> Definition: <definition>"
-)
 
-st.title("🦙 Llama Index Term Extractor 🦙")
 
-setup_tab, upload_tab = st.tabs(["Setup", "Upload/Extract Terms"])
 
-with setup_tab:
-    st.subheader("LLM Setup")
-    api_key = st.text_input("Enter your OpenAI API key here", type="password")
-    llm_name = st.selectbox('Which LLM?', ["text-davinci-003", "gpt-3.5-turbo", "gpt-4"])
-    model_temperature = st.slider("LLM Temperature", min_value=0.0, max_value=1.0, step=0.1)
-    term_extract_str = st.text_area("The query to extract terms and definitions with.", value=DEFAULT_TERM_STR)
 
-with upload_tab:
-    st.subheader("Extract and Query Definitions")
-    document_text = st.text_area("Or enter raw text")
-    if st.button("Extract Terms and Definitions") and document_text:
-        with st.spinner("Extracting..."):
-            extracted_terms = document text  # this is a placeholder!
-        st.write(extracted_terms)
-Now our app has two tabs, which really helps with the organization. You'll also noticed I added a default prompt to extract terms -- you can change this later once you try extracting some terms, it's just the prompt I arrived at after experimenting a bit.
 
-Speaking of extracting terms, it's time to add some functions to do just that!
 
-Extracting and Storing Terms
-Now that we are able to define LLM settings and upload text, we can try using Llama Index to extract the terms from text for us!
 
-We can add the following functions to both initialize our LLM, as well as use it to extract terms from the input text.
 
-from llama_index import Document, ListIndex, LLMPredictor, ServiceContext, load_index_from_storage
-from llama_index.llms import OpenAI
 
-def get_llm(llm_name, model_temperature, api_key, max_tokens=256):
-    os.environ['OPENAI_API_KEY'] = api_key
-    return OpenAI(temperature=model_temperature, model=llm_name, max_tokens=max_tokens)
-
-def extract_terms(documents, term_extract_str, llm_name, model_temperature, api_key):
-    llm = get_llm(llm_name, model_temperature, api_key, max_tokens=1024)
-
-    service_context = ServiceContext.from_defaults(llm=llm,
-                                                   chunk_size=1024)
-
-    temp_index = ListIndex.from_documents(documents, service_context=service_context)
-    query_engine = temp_index.as_query_engine(response_mode="tree_summarize")
-    terms_definitions = str(query_engine.query(term_extract_str))
-    terms_definitions = [x for x in terms_definitions.split("\n") if x and 'Term:' in x and 'Definition:' in x]
-    # parse the text into a dict
-    terms_to_definition = {x.split("Definition:")[0].split("Term:")[-1].strip(): x.split("Definition:")[-1].strip() for x in terms_definitions}
-    return terms_to_definition
-Now, using the new functions, we can finally extract our terms!
-
-...
-with upload_tab:
-    st.subheader("Extract and Query Definitions")
-    document_text = st.text_area("Or enter raw text")
-    if st.button("Extract Terms and Definitions") and document_text:
-        with st.spinner("Extracting..."):
-            extracted_terms = extract_terms([Document(text=document_text)],
-                                            term_extract_str, llm_name,
-                                            model_temperature, api_key)
-        st.write(extracted_terms)
-There's a lot going on now, let's take a moment to go over what is happening.
-
-get_llm() is instantiating the LLM based on the user configuration from the setup tab. Based on the model name, we need to use the appropriate class (OpenAI vs. ChatOpenAI).
-
-extract_terms() is where all the good stuff happens. First, we call get_llm() with max_tokens=1024, since we don't want to limit the model too much when it is extracting our terms and definitions (the default is 256 if not set). Then, we define our ServiceContext object, aligning num_output with our max_tokens value, as well as setting the chunk size to be no larger than the output. When documents are indexed by Llama Index, they are broken into chunks (also called nodes) if they are large, and chunk_size sets the size for these chunks.
-
-Next, we create a temporary list index and pass in our service context. A list index will read every single piece of text in our index, which is perfect for extracting terms. Finally, we use our pre-defined query text to extract terms, using response_mode="tree_summarize. This response mode will generate a tree of summaries from the bottom up, where each parent summarizes its children. Finally, the top of the tree is returned, which will contain all our extracted terms and definitions.
-
-Lastly, we do some minor post processing. We assume the model followed instructions and put a term/definition pair on each line. If a line is missing the Term: or Definition: labels, we skip it. Then, we convert this to a dictionary for easy storage!
-
-Saving Extracted Terms
-Now that we can extract terms, we need to put them somewhere so that we can query for them later. A VectorStoreIndex should be a perfect choice for now! But in addition, our app should also keep track of which terms are inserted into the index so that we can inspect them later. Using st.session_state, we can store the current list of terms in a session dict, unique to each user!
-
-First things first though, let's add a feature to initialize a global vector index and another function to insert the extracted terms.
-
-...
-if 'all_terms' not in st.session_state:
-    st.session_state['all_terms'] = DEFAULT_TERMS
-...
-
-def insert_terms(terms_to_definition):
-    for term, definition in terms_to_definition.items():
-        doc = Document(text=f"Term: {term}\nDefinition: {definition}")
-        st.session_state['llama_index'].insert(doc)
-
-@st.cache_resource
-def initialize_index(llm_name, model_temperature, api_key):
-    """Create the VectorStoreIndex object."""
-    llm = get_llm(llm_name, model_temperature, api_key)
-
-    service_context = ServiceContext.from_defaults(llm=llm)
-
-    index = VectorStoreIndex([], service_context=service_context)
-
-    return index
-
-...
-
-with upload_tab:
-    st.subheader("Extract and Query Definitions")
-    if st.button("Initialize Index and Reset Terms"):
-        st.session_state['llama_index'] = initialize_index(llm_name, model_temperature, api_key)
-        st.session_state['all_terms'] = {}
-
-    if "llama_index" in st.session_state:
-        st.markdown("Either upload an image/screenshot of a document, or enter the text manually.")
-        document_text = st.text_area("Or enter raw text")
-        if st.button("Extract Terms and Definitions") and (uploaded_file or document_text):
-            st.session_state['terms'] = {}
-            terms_docs = {}
-            with st.spinner("Extracting..."):
-                terms_docs.update(extract_terms([Document(text=document_text)], term_extract_str, llm_name, model_temperature, api_key))
-            st.session_state['terms'].update(terms_docs)
-
-        if "terms" in st.session_state and st.session_state["terms"]::
-            st.markdown("Extracted terms")
-            st.json(st.session_state['terms'])
-
-            if st.button("Insert terms?"):
-                with st.spinner("Inserting terms"):
-                    insert_terms(st.session_state['terms'])
-                st.session_state['all_terms'].update(st.session_state['terms'])
-                st.session_state['terms'] = {}
-                st.experimental_rerun()
-Now you are really starting to leverage the power of streamlit! Let's start with the code under the upload tab. We added a button to initialize the vector index, and we store it in the global streamlit state dictionary, as well as resetting the currently extracted terms. Then, after extracting terms from the input text, we store it the extracted terms in the global state again and give the user a chance to review them before inserting. If the insert button is pressed, then we call our insert terms function, update our global tracking of inserted terms, and remove the most recently extracted terms from the session state.
-
-Querying for Extracted Terms/Definitions
-With the terms and definitions extracted and saved, how can we use them? And how will the user even remember what's previously been saved?? We can simply add some more tabs to the app to handle these features.
-
-...
-setup_tab, terms_tab, upload_tab, query_tab = st.tabs(
-    ["Setup", "All Terms", "Upload/Extract Terms", "Query Terms"]
-)
-...
-with terms_tab:
-    with terms_tab:
-    st.subheader("Current Extracted Terms and Definitions")
-    st.json(st.session_state["all_terms"])
-...
-with query_tab:
-    st.subheader("Query for Terms/Definitions!")
-    st.markdown(
-        (
-            "The LLM will attempt to answer your query, and augment it's answers using the terms/definitions you've inserted. "
-            "If a term is not in the index, it will answer using it's internal knowledge."
-        )
-    )
-    if st.button("Initialize Index and Reset Terms", key="init_index_2"):
-        st.session_state["llama_index"] = initialize_index(
-            llm_name, model_temperature, api_key
-        )
-        st.session_state["all_terms"] = {}
-
-    if "llama_index" in st.session_state:
-        query_text = st.text_input("Ask about a term or definition:")
-        if query_text:
-            query_text = query_text + "\nIf you can't find the answer, answer the query with the best of your knowledge."
-            with st.spinner("Generating answer..."):
-                response = st.session_state["llama_index"].query(
-                    query_text, similarity_top_k=5, response_mode="compact"
-                )
-            st.markdown(str(response))
-While this is mostly basic, some important things to note:
-
-Our initialize button has the same text as our other button. Streamlit will complain about this, so we provide a unique key instead.
-Some additional text has been added to the query! This is to try and compensate for times when the index does not have the answer.
-In our index query, we've specified two options:
-similarity_top_k=5 means the index will fetch the top 5 closest matching terms/definitions to the query.
-response_mode="compact" means as much text as possible from the 5 matching terms/definitions will be used in each LLM call. Without this, the index would make at least 5 calls to the LLM, which can slow things down for the user.
-Dry Run Test
-Well, actually I hope you've been testing as we went. But now, let's try one complete test.
-
-Refresh the app
-Enter your LLM settings
-Head over to the query tab
-Ask the following: What is a bunnyhug?
-The app should give some nonsense response. If you didn't know, a bunnyhug is another word for a hoodie, used by people from the Canadian Prairies!
-Let's add this definition to the app. Open the upload tab and enter the following text: A bunnyhug is a common term used to describe a hoodie. This term is used by people from the Canadian Prairies.
-Click the extract button. After a few moments, the app should display the correctly extracted term/definition. Click the insert term button to save it!
-If we open the terms tab, the term and definition we just extracted should be displayed
-Go back to the query tab and try asking what a bunnyhug is. Now, the answer should be correct!
-Improvement #1 - Create a Starting Index
-With our base app working, it might feel like a lot of work to build up a useful index. What if we gave the user some kind of starting point to show off the app's query capabilities? We can do just that! First, let's make a small change to our app so that we save the index to disk after every upload:
-
-def insert_terms(terms_to_definition):
-    for term, definition in terms_to_definition.items():
-        doc = Document(text=f"Term: {term}\nDefinition: {definition}")
-        st.session_state['llama_index'].insert(doc)
-    # TEMPORARY - save to disk
-    st.session_state['llama_index'].storage_context.persist()
-Now, we need some document to extract from! The repository for this project used the wikipedia page on New York City, and you can find the text here.
-
-If you paste the text into the upload tab and run it (it may take some time), we can insert the extracted terms. Make sure to also copy the text for the extracted terms into a notepad or similar before inserting into the index! We will need them in a second.
-
-After inserting, remove the line of code we used to save the index to disk. With a starting index now saved, we can modify our initialize_index function to look like this:
-
-@st.cache_resource
-def initialize_index(llm_name, model_temperature, api_key):
-    """Load the Index object."""
-    llm = get_llm(llm_name, model_temperature, api_key)
-
-    service_context = ServiceContext.from_defaults(llm=llm)
-
-    index = load_index_from_storage(service_context=service_context)
-
-    return index
-Did you remember to save that giant list of extracted terms in a notepad? Now when our app initializes, we want to pass in the default terms that are in the index to our global terms state:
-
-...
-if "all_terms" not in st.session_state:
-    st.session_state["all_terms"] = DEFAULT_TERMS
-...
-Repeat the above anywhere where we were previously resetting the all_terms values.
-
-Improvement #2 - (Refining) Better Prompts
-If you play around with the app a bit now, you might notice that it stopped following our prompt! Remember, we added to our query_str variable that if the term/definition could not be found, answer to the best of its knowledge. But now if you try asking about random terms (like bunnyhug!), it may or may not follow those instructions.
-
-This is due to the concept of "refining" answers in Llama Index. Since we are querying across the top 5 matching results, sometimes all the results do not fit in a single prompt! OpenAI models typically have a max input size of 4097 tokens. So, Llama Index accounts for this by breaking up the matching results into chunks that will fit into the prompt. After Llama Index gets an initial answer from the first API call, it sends the next chunk to the API, along with the previous answer, and asks the model to refine that answer.
-
-So, the refine process seems to be messing with our results! Rather than appending extra instructions to the query_str, remove that, and Llama Index will let us provide our own custom prompts! Let's create those now, using the default prompts and chat specific prompts as a guide. Using a new file constants.py, let's create some new query templates:
-
-from langchain.chains.prompt_selector import ConditionalPromptSelector, is_chat_model
-from langchain.prompts.chat import (
-    AIMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-)
-
-from llama_index.prompts.prompts import QuestionAnswerPrompt, RefinePrompt
-
-# Text QA templates
-DEFAULT_TEXT_QA_PROMPT_TMPL = (
-    "Context information is below. \n"
-    "---------------------\n"
-    "{context_str}"
-    "\n---------------------\n"
-    "Given the context information answer the following question "
-    "(if you don't know the answer, use the best of your knowledge): {query_str}\n"
-)
-TEXT_QA_TEMPLATE = QuestionAnswerPrompt(DEFAULT_TEXT_QA_PROMPT_TMPL)
-
-# Refine templates
-DEFAULT_REFINE_PROMPT_TMPL = (
-    "The original question is as follows: {query_str}\n"
-    "We have provided an existing answer: {existing_answer}\n"
-    "We have the opportunity to refine the existing answer "
-    "(only if needed) with some more context below.\n"
-    "------------\n"
-    "{context_msg}\n"
-    "------------\n"
-    "Given the new context and using the best of your knowledge, improve the existing answer. "
-    "If you can't improve the existing answer, just repeat it again."
-)
-DEFAULT_REFINE_PROMPT = RefinePrompt(DEFAULT_REFINE_PROMPT_TMPL)
-
-CHAT_REFINE_PROMPT_TMPL_MSGS = [
-    HumanMessagePromptTemplate.from_template("{query_str}"),
-    AIMessagePromptTemplate.from_template("{existing_answer}"),
-    HumanMessagePromptTemplate.from_template(
-        "We have the opportunity to refine the above answer "
-        "(only if needed) with some more context below.\n"
-        "------------\n"
-        "{context_msg}\n"
-        "------------\n"
-        "Given the new context and using the best of your knowledge, improve the existing answer. "
-    "If you can't improve the existing answer, just repeat it again."
-    ),
-]
-
-CHAT_REFINE_PROMPT_LC = ChatPromptTemplate.from_messages(CHAT_REFINE_PROMPT_TMPL_MSGS)
-CHAT_REFINE_PROMPT = RefinePrompt.from_langchain_prompt(CHAT_REFINE_PROMPT_LC)
-
-# refine prompt selector
-DEFAULT_REFINE_PROMPT_SEL_LC = ConditionalPromptSelector(
-    default_prompt=DEFAULT_REFINE_PROMPT.get_langchain_prompt(),
-    conditionals=[(is_chat_model, CHAT_REFINE_PROMPT.get_langchain_prompt())],
-)
-REFINE_TEMPLATE = RefinePrompt(
-    langchain_prompt_selector=DEFAULT_REFINE_PROMPT_SEL_LC
-)
-That seems like a lot of code, but it's not too bad! If you looked at the default prompts, you might have noticed that there are default prompts, and prompts specific to chat models. Continuing that trend, we do the same for our custom prompts. Then, using a prompt selector, we can combine both prompts into a single object. If the LLM being used is a chat model (ChatGPT, GPT-4), then the chat prompts are used. Otherwise, use the normal prompt templates.
-
-Another thing to note is that we only defined one QA template. In a chat model, this will be converted to a single "human" message.
-
-So, now we can import these prompts into our app and use them during the query.
-
-from constants import REFINE_TEMPLATE, TEXT_QA_TEMPLATE
-...
-    if "llama_index" in st.session_state:
-        query_text = st.text_input("Ask about a term or definition:")
-        if query_text:
-            query_text = query_text  # Notice we removed the old instructions
-            with st.spinner("Generating answer..."):
-                response = st.session_state["llama_index"].query(
-                    query_text, similarity_top_k=5, response_mode="compact",
-                    text_qa_template=TEXT_QA_TEMPLATE, refine_template=REFINE_TEMPLATE
-                )
-            st.markdown(str(response))
-...
-If you experiment a bit more with queries, hopefully you notice that the responses follow our instructions a little better now!
-
-Improvement #3 - Image Support
-Llama index also supports images! Using Llama Index, we can upload images of documents (papers, letters, etc.), and Llama Index handles extracting the text. We can leverage this to also allow users to upload images of their documents and extract terms and definitions from them.
-
-If you get an import error about PIL, install it using pip install Pillow first.
-
-from PIL import Image
-from llama_index.readers.file.base import DEFAULT_FILE_EXTRACTOR, ImageParser
-
-@st.cache_resource
-def get_file_extractor():
-    image_parser = ImageParser(keep_image=True, parse_text=True)
-    file_extractor = DEFAULT_FILE_EXTRACTOR
-    file_extractor.update(
-        {
-            ".jpg": image_parser,
-            ".png": image_parser,
-            ".jpeg": image_parser,
-        }
-    )
-
-    return file_extractor
-
-file_extractor = get_file_extractor()
-...
-with upload_tab:
-    st.subheader("Extract and Query Definitions")
-    if st.button("Initialize Index and Reset Terms", key="init_index_1"):
-        st.session_state["llama_index"] = initialize_index(
-            llm_name, model_temperature, api_key
-        )
-        st.session_state["all_terms"] = DEFAULT_TERMS
-
-    if "llama_index" in st.session_state:
-        st.markdown(
-            "Either upload an image/screenshot of a document, or enter the text manually."
-        )
-        uploaded_file = st.file_uploader(
-            "Upload an image/screenshot of a document:", type=["png", "jpg", "jpeg"]
-        )
-        document_text = st.text_area("Or enter raw text")
-        if st.button("Extract Terms and Definitions") and (
-            uploaded_file or document_text
-        ):
-            st.session_state["terms"] = {}
-            terms_docs = {}
-            with st.spinner("Extracting (images may be slow)..."):
-                if document_text:
-                    terms_docs.update(
-                        extract_terms(
-                            [Document(text=document_text)],
-                            term_extract_str,
-                            llm_name,
-                            model_temperature,
-                            api_key,
-                        )
-                    )
-                if uploaded_file:
-                    Image.open(uploaded_file).convert("RGB").save("temp.png")
-                    img_reader = SimpleDirectoryReader(
-                        input_files=["temp.png"], file_extractor=file_extractor
-                    )
-                    img_docs = img_reader.load_data()
-                    os.remove("temp.png")
-                    terms_docs.update(
-                        extract_terms(
-                            img_docs,
-                            term_extract_str,
-                            llm_name,
-                            model_temperature,
-                            api_key,
-                        )
-                    )
-            st.session_state["terms"].update(terms_docs)
-
-        if "terms" in st.session_state and st.session_state["terms"]:
-            st.markdown("Extracted terms")
-            st.json(st.session_state["terms"])
-
-            if st.button("Insert terms?"):
-                with st.spinner("Inserting terms"):
-                    insert_terms(st.session_state["terms"])
-                st.session_state["all_terms"].update(st.session_state["terms"])
-                st.session_state["terms"] = {}
-                st.experimental_rerun()
-Here, we added the option to upload a file using Streamlit. Then the image is opened and saved to disk (this seems hacky but it keeps things simple). Then we pass the image path to the reader, extract the documents/text, and remove our temp image file.
-
-Now that we have the documents, we can call extract_terms() the same as before.
-
-Conclusion/TLDR
-In this tutorial, we covered a ton of information, while solving some common issues and problems along the way:
-
-Using different indexes for different use cases (List vs. Vector index)
-Storing global state values with Streamlit's session_state concept
-Customizing internal prompts with Llama Index
-Reading text from images with Llama Index
-The final version of this tutorial can be found here and a live hosted demo is available on Huggingface Spaces.
+
+
+
+
+*Please note this is the final task nomenclature document to be followed. For subtasks, please see the subtask nomenclature document here. Other ClickUp SOPs, aside from nomenclature, that are mentioned in the document on ClickUp should also be noted. 
+
+SPACE: ALL CLIENT SPACES – Billable (e.g., Homemade Method, Lulusar etc)
+
+1.	Meetings 
+Definition: These encompass all internal meetings (where attendees are Data Pilot team members) and meetings with clients, whether scheduled or unscheduled. 
+Process tip: Book all meetings on the calendar, including unscheduled meetings, so all attendees are aware the meeting needs to be logged in the Meetings list.
+Format: [Meeting Type] - [Meeting Subject]
+Example - Internal Meeting: Internal Meeting - Daily Stand-up
+Example - Client Meeting: Client Meeting - Weekly Stand-up
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
+ 
+
+2.	Offline Communication 
+Definition: Written communication done via platforms such as Slack, Teams, or email. Includes both internal communication (where participants are Data Pilot team members) and communication with clients. 
+Process tip: When starting a conversation thread, take note of the timestamp. Complete the conversation and log time manually. (Try not to switch between multiple conversations. If switching is unavoidable, keep track of overall time spent and distribute the time between conversations when logging manually according to your best approximation.)
+Format: [Communication Type] - [Communication Platform] - [Brief Description]
+Example - Internal Communication: Internal Communication - Teams - Data Validation Discussion
+Example - Client Communication: Client Communication - Slack - Data Validation Discussion
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
+ 
+
+3.	Estimation - Existing Client
+Definition: Drafting time estimates for a particular project for an existing client with task breakdown and assumptions. This is logged inside the existing project space e.g. estimation for Benzinga dashboards will be logged in the 7 knots space. 
+Format: Estimation - [Brief Description]
+Example: Estimation - Dashboard Development for 20 KPIs
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
+
+ 
+
+4.	Requirement Gathering - Existing Client 
+Definition: Reading and/or researching a new project for an existing client to understand client requirements for that project. This is logged inside the existing project space e.g. requirement gathering for Benzinga dashboards will be logged in the 7 knots space. 
+Format: Requirement Gathering - [Brief Description]
+Example: Requirement Gathering - User Authentication
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
+
+ 
+
+Note: Requirement Gathering can also be a standalone list inside a project space, task to be written following the format above. 
+
+5.	Data Engineering
+Definition: All data engineering related tasks such as ETL and pipeline development, including any preparatory work for data engineering e.g. establishing API connection. 
+Format: [Task Type] - [Brief Description]
+Examples:
+ETL - Facebook to MySQL using Python
+ETL - Facebook to MySQL using Fivetran
+ERD - Database modeling for AWS MySQL RDS 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Engineering list (in Sprint or Kanban folder as needed):
+ 
+
+6.	Data Science (AI/ML/NLP)
+Definition: All tasks relating to the development of machine learning models, natural language processing algorithms and AI solutions - including any preparatory work such as data cleanup or categorisation.
+Format: [Task Type] - [Brief Description]
+Examples:
+AI - Stream optimization using Python
+ML - Customer Churn Model Training
+AI - Predict Customer Churn using Python on AWS
+AI - Build computer vision model for defect detection on Azure 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Science (AI/ML/NLP) list (in Sprint or Kanban folder as needed):
+ 
+
+
+7.	MLOps
+Definition: All tasks relating to Machine Learning operations, from model deployment to maintenance and monitoring. 
+Format: [Task Type] - [Brief Description]
+Example: Deployment - Deploy ML Model for Customer Churn on AWS
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the MLOps list (in Sprint or Kanban folder as needed):
+ 
+
+8.	DevOps
+Definition: All tasks relating to deployment of pipelines or user applications, management of cloud infrastructure, and maintenance and monitoring.
+Format: [Task Type] - [Brief Description]
+Examples:
+Create IAM Roles - Define Permission Roles
+User Setup - Establish user accounts and permissions.
+Attach Policies - Link policies to roles.
+Note: Here are the 140 examples of DevOps tasks. 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the DevOps list (in Sprint or Kanban folder as needed):
+ 
+
+
+9.	Software Engineering - Frontend
+Definition: Frontend engineering tasks to do with creating and implementing UI/UX. 
+Format: [Task Type] - [Brief Description]
+Example: Frontend – Implement Landing Page Using React 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering – Frontend list (in Sprint or Kanban folder as needed):
+ 
+
+10. Software Engineering - Backend
+Definition: All software engineering tasks related to the backend e.g., API development. 
+Format: [Task Type] - [Brief Description]
+Example: Backend - Pipeline Optimization using FastAPI 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering - Backend list (in Sprint or Kanban folder as needed):
+
+ 
+
+11. Quality Assurance
+Definition: All tasks to do with quality assurance (QA), including code review, data validation or design QA for dashboards, and QA testing for applications. 
+Format: [Task Type] - [Brief Description]
+Examples:
+Code Review - Facebook Script
+Data Validation - Validate Facebook Data in Google Bigquery
+Design QA - Subscription Analytics Dashboard
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Quality Assurance list (in Sprint or Kanban folder as needed):
+
+ 
+
+12. Analytics/BI
+Definition: All tasks related to analytics and BI, including dashboard development and data analysis. 
+Format: [Task Type] - [Brief Description]
+Example: Dashboard Development - Subscription Analytics Dashboard on Tableau Containing 20 KPIs
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Analytics/BI list (in Sprint or Kanban folder as needed):
+
+ 
+
+13. Product Design
+Definition: All tasks relating to product design, including user research, low fidelity design i.e., wire-framing and high-fidelity design i.e., final user interface given to frontend team for implementation. 
+Format: [Task Type] - [Product Description]
+Example:
+Wire-framing - Subscription Analytics Dashboard Containing 20 KPIs
+High-fidelity Design – Website Signup Page 
+
+	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Product Design list (in Sprint or Kanban folder as needed):
+
+ 
+
+SPACE: PRESALES & POCs [Non-billable]
+
+10.	Project Estimation Tasks - Pre-sales 
+Definition: Drafting time estimates using the estimation template for a project for a new client as part of the pre-sales process. This would be logged in Pre-sales & POCs [Engineering] space, in the relevant pre-sales client list. 
+Format: Estimation - [Brief Description]
+Example: Estimation - Dashboard Development for 20 KPIs
+
+	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
+ 
+
+11.	Requirement Gathering - Pre-sales 
+Definition: Reading and/or researching a project for a new client to understand client requirements for that project. This would be logged in Pre-sales & POCs [Engineering] space, in the specific pre-sales client list created. 
+Format: Requirement Gathering - [Brief Description]
+Example: Requirement Gathering - User Authentication
+
+	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
+ 
+
+12.	POC Development - POCs 
+Definition: Development efforts to create a POC. This would be logged in Pre-sales & POCs [Engineering] space, in the specific POC client list created. 
+Format: [Task Type] - [Brief Description]
+Example: ETL - Facebook to MySQL using Python
+
+	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant POC client list (in Sprint or Kanban folder as needed):
+ 
+
+*Meetings & offline communication will be logged using the nomenclature defined above for client spaces. Unlike a client space, there will not be a separate Meetings list, instead these should be logged in the client specific lists as shown above using the [Meeting Type] - [Meeting Subject[ format.
+
+SPACE: TRAINING [Non-billable]
+
+Training 
+Definition: Tasks to do with personal development will be logged here. This includes self-paced study on platforms such as Coursera, in-house training sessions with the team, and external webinars or conferences. The nomenclature for each of these categories is listed below. 
+13.	Self-Paced Study 
+Definition: Courses taken on learning platforms such as Coursera and Udemy or informational videos watched on YouTube.
+Format: Self-Paced Study - [Course or Video Title] on [Learning Platform]
+Example: Self-Paced Study - Python Fundamentals on Coursera
+
+	Where to log these tasks on ClickUp? Go to the Training space and select the Self-Paced Study list (in Sprint or Kanban folder as needed):
+
+ 
+
+
+14.	Team Training Sessions 
+Definition: Collective team training sessions that take place at DP HQ. 
+Format: Team Training - [Brief Description]
+Example: Team Training - Data Storytelling 
+
+	Where to log these tasks on ClickUp? Go to the Training and select the Team Training Sessions list (in Sprint or Kanban folder as needed):
+ 
+
+15.	External Training Sessions 
+Definition: Training sessions organised by any external body that take place in a physical or online setting. 
+Format: External Training - [Organiser] - [Brief Description]
+Example: External Training - ClickUp - Project Management Guidelines 
+
+	Where to log these tasks on ClickUp? Go to the Training and select the External Training Sessions list (in Sprint or Kanban folder as needed):
+ 
+
+
+SPACE: RECREATION & ADMINISTRATION [Non-billable]
+
+16.	Administrative Tasks 
+Definition: These include day to day administrative tasks performed by all team members such as: 
+(i) Events & Travel
+Definition: Meeting room reservations, event planning and making travel arrangements.
+Format: [Task Type] - [Brief Description]
+Examples: (Based on each of the 3 categories mentioned in the definition)
+Room Reservation - Biweekly Training
+Event Planning - Preparing Budget Plan for Team Dinner 
+Travel Arrangements - Researching Flight Information for PSW Trip 
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Events & Travel list (in Sprint or Kanban folder as needed):
+ 
+
+(ii) HR Documentation
+Definition: Compiling and submitting HR documents. 
+Format: HR Documentation - [Document Type]
+Example: HR Documentation - Annual Leave Application
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the HR Documentation list (in Sprint or Kanban folder as needed):
+ 
+
+(iii) Hiring 
+Definition: Assisting HR with sourcing (searching for candidates using LinkedIn or other channels), screening (resume review) and interviewing candidates. 
+Format: [Task Type] - [Role]
+Examples: (Based on each of the 3 categories mentioned in the definition)
+Talent Sourcing - HR & Ops Manager
+Candidate Screening - HR & Ops Manager
+Interview - HR & Ops Manager
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Hiring list (in Sprint or Kanban folder as needed):
+ 
+
+(iv) Office Inventory
+Definition: This may involve checking office stationery and snack supplies and placing orders.
+Format: [Task Type] - [Supply Type]
+Examples:
+Inventory Assessment - Office Snacks
+Inventory Purchase - Office Snacks
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Office Inventory list (in Sprint or Kanban folder as needed):
+ 
+
+
+17.	Recreation & Team Building 
+
+(i) Recreation
+Definition: Activities such as games, outings or in-office get togethers undertaken for the purposes of fun and leisure. Recreation also includes personal time taken by an individual for the same purpose.
+Format: Recreation - [Activity Type]
+Examples: Recreation - Lunch Outing
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Recreation list (in Sprint or Kanban folder as needed):
+ 
+
+(ii) Team Building
+Definition: Games and exercises that the team partakes in usually to enhance team performance and trust to better meet business objectives.
+Format: [Team Building] - [Activity Type]
+Examples: Team Building - Escape Room
+
+	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Team Building list (in Sprint or Kanban folder as needed):
+ 
+
+*Meetings & offline communication will be logged using the nomenclature defined above for client spaces. Please note unlike a client space, there will not be a separate list for Meetings, instead those will be logged in the list that the meeting is related to e.g., a meeting related to event planning would be logged in Events & Travel using the [Meeting Type] - [Meeting Subject] format.
+
+SPACE: SPRINT SESSIONS
+
+Sprint Sessions [Engineering] 
+Definition: These include all sprint sessions conducted within the duration of a 2-week sprint with the engineering team, such as;
+(i) Sprint Pre-Planning 
+Definition: This is the session held prior to sprint opening to plan sprint individually and/or with one's team members, to present to all stakeholders in sprint opening (dev team usually has this session 10 am to 12 pm every second Monday).
+Format: Internal Meeting - [Meeting Subject] 
+Example: Internal Meeting – Sprint Pre-Planning 
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 
+
+(ii) Sprint Opening
+Definition: All team members sit together with project management team to review sprint plan and make any changes as required.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Sprint Opening 
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 
+
+(iii) Sprint Closing 
+Definition: This is the last sprint session of a sprint in which engineering and PRJM teams sit together to review the sprint.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Sprint Closing
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 
+
+(iv) Daily Standup
+Definition: This is the daily update that takes place throughout the sprint.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Daily Standup
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 
+
+Sprint Sessions [Product, Mtkg & Pre-sales] - Non-billable 
+
+Definition: These include all sprint sessions conducted within the duration of a 2-week sprint with the product, marketing and pre-sales teams, such as;
+(i) Sprint Pre-Planning 
+Definition: This is the session held prior to sprint opening to plan sprint individually and/or with one's team members, to present to all stakeholders in sprint opening (usually done 10 to 11 am every second Monday).
+Format: Internal Meeting - [Meeting Subject] 
+Example: Internal Meeting – Sprint Pre-Planning 
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 
+
+(ii) Sprint Opening
+Definition: All team members sit together with Adeel and Ali to review sprint plan and make any changes as required.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Sprint Opening 
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 
+
+(iii) Sprint Closing 
+Definition: This is the last sprint session of a sprint in which all team members sit with Ali and Adeel to review the sprint.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Sprint Closing
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 
+
+(iv) Daily Standup
+Definition: This is the daily update that takes place throughout the sprint.
+Format: Internal Meeting - [Meeting Subject]
+Examples: Internal Meeting – Daily Standup
+
+	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 
+
+
+
+SPACE: 7 KNOTS DIGITAL
+
+The 7 knots space is structured differently than other client spaces – sprint and kanban folders are the same, but the list breakdown is different. 7 knots is working with multiple clients, and we want to treat those as separate projects.
+
+Here is the current list breakdown (this will change as clients are added/removed):
+1.	Blueconic Dashboards 
+2.	Blueconic Reconfiguration
+3.	Spikehero Dashboards
+4.	Lexipol
+5.	Benzinga Subscription Analytics
+6.	Benzinga Dashboards 
+7.	[All Projects] Project Management (Weekly Standups attended by project manager logged here)
+8.	[All Projects] Data Team (Weekly Standups attended by data team logged here)
+ 
+
+Task Nomenclature to be used in each list:
+Format: [Task Type] - [Brief Description]
+Examples:
+ETL - Facebook to MySQL using Python
+ERD - Database modeling for AWS MySQL RDS
+Code Review - Facebook Script
+Data Validation - Validate Facebook Data in Google Bigquery
+
+Meetings Nomenclature to be used in each list:
+Format: [Meeting Type] - [Meeting Subject]
+Example - Internal Meeting: Internal Meeting - Daily Stand-up
+Example - Client Meeting: Client Meeting - Weekly Stand-up
+
+Offline Communication Nomenclature to be used in each list:
+Format: [Communication Type] - [Communication Platform] - [Brief Description]
+Example - Internal Communication: Internal Communication - Teams - Data Validation Discussion
+Example - Client Communication: Client Communication - Slack - Data Validation Discussion
+
+
+
