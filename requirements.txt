@@ -5,3 +5,4 @@ nltk
 pypdf
 pathlib
 docx2txt
+os
