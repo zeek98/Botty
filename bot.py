@@ -6,7 +6,7 @@ from llama_index import SimpleDirectoryReader
 
 st.set_page_config(page_title="Chat with the DP bot, powered by LlamaIndex", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
 st.title("Chat with the DP, powered by LlamaIndex 💬🦙")
-st.info("Check out the full tutorial to build this app in our [blog post])", icon="📃")
+st.info("To help go beyond and above", icon="📃")
          
 if "messages" not in st.session_state.keys(): # Initialize the chat messages history
     st.session_state.messages = [
