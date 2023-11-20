@@ -1,4 +1,4 @@
-*Please note this is the final task nomenclature document to be followed. For subtasks, please see the subtask nomenclature document here. Other ClickUp SOPs, aside from nomenclature, that are mentioned in the document on ClickUp should also be noted. 
+*Please note this is the final task nomenclature document to be followed. For subtasks, please see the subtask nomenclature document here. Other ClickUp SOPs, aside from nomenclature, that are mentioned in the document on ClickUp should also be noted. Also the HR related data is mentioned in the end.
 
 SPACE: ALL CLIENT SPACES – Billable (e.g., Homemade Method, Lulusar etc)
 
