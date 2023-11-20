@@ -1,5 +1,5 @@
 import streamlit as st
-from llama_index import GPTVectorStoreIndex, ServiceContext, download_loader
+from llama_index import GPTVectorStoreIndex, download_loader, ServiceContext
 from llama_index.llms import OpenAI
 from llama_index import SimpleDirectoryReader
 
@@ -66,7 +66,7 @@ if index is not None:  # Check if data loading was successful
     if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = st.session_state.chat_engine.chat(prompt)
+                response = st.session_state.chat_engine.retrieve(prompt)
                 st.write(response.response)
                 message = {"role": "assistant", "content": response.response}
                 st.session_state.messages.append(message)
