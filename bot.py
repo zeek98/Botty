@@ -40,7 +40,8 @@ def load_data():
             docs = reader.load_data()
 
         service_context = ServiceContext.from_defaults(
-            chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="You will give the answers truthfully and do not deviate, but if you don't know then say I don't Know as the answer.")
+            chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="Given the nature of the question, please provide a detailed response based on either the Markdown (.md) files or Excel (.xlsx) data. If the question is related to estimation, use information from Excel; otherwise, use data from Markdown files. Respond truthfully, and if you don't know the answer, indicate so. Thank you!"
+)
         )
 
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
