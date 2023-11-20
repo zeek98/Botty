@@ -1,34 +1,3 @@
-Task Nomenclature 
-
-Task Nomenclature	1
-SPACE: ALL CLIENT SPACES – Billable (e.g., Homemade Method, Lulusar etc)	3
-SPACE: PRESALES & POCs [Non-billable]	15
-SPACE: TRAINING [Non-billable]	17
-SPACE: RECREATION & ADMINISTRATION [Non-billable]	19
-SPACE: SPRINT SESSIONS	25
-SPACE: 7 KNOTS DIGITAL	30
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *Please note this is the final task nomenclature document to be followed. For subtasks, please see the subtask nomenclature document here. Other ClickUp SOPs, aside from nomenclature, that are mentioned in the document on ClickUp should also be noted. 
 
 SPACE: ALL CLIENT SPACES – Billable (e.g., Homemade Method, Lulusar etc)
@@ -40,7 +9,7 @@ Format: [Meeting Type] - [Meeting Subject]
 Example - Internal Meeting: Internal Meeting - Daily Stand-up
 Example - Client Meeting: Client Meeting - Weekly Stand-up
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
  
 
 2.	Offline Communication 
@@ -50,7 +19,7 @@ Format: [Communication Type] - [Communication Platform] - [Brief Description]
 Example - Internal Communication: Internal Communication - Teams - Data Validation Discussion
 Example - Client Communication: Client Communication - Slack - Data Validation Discussion
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Meetings & Offline Communication list (in Sprint or Kanban folder as needed):
  
 
 3.	Estimation - Existing Client
@@ -58,7 +27,7 @@ Definition: Drafting time estimates for a particular project for an existing cli
 Format: Estimation - [Brief Description]
 Example: Estimation - Dashboard Development for 20 KPIs
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
 
  
 
@@ -67,7 +36,7 @@ Definition: Reading and/or researching a new project for an existing client to u
 Format: Requirement Gathering - [Brief Description]
 Example: Requirement Gathering - User Authentication
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Estimation list (in Sprint or Kanban folder as needed):
 
  
 
@@ -81,7 +50,8 @@ ETL - Facebook to MySQL using Python
 ETL - Facebook to MySQL using Fivetran
 ERD - Database modeling for AWS MySQL RDS 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Engineering list (in Sprint or Kanban folder as needed):
+
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Engineering list (in Sprint or Kanban folder as needed):
  
 
 6.	Data Science (AI/ML/NLP)
@@ -93,7 +63,8 @@ ML - Customer Churn Model Training
 AI - Predict Customer Churn using Python on AWS
 AI - Build computer vision model for defect detection on Azure 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Science (AI/ML/NLP) list (in Sprint or Kanban folder as needed):
+
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Data Science (AI/ML/NLP) list (in Sprint or Kanban folder as needed):
  
 
 
@@ -102,7 +73,7 @@ Definition: All tasks relating to Machine Learning operations, from model deploy
 Format: [Task Type] - [Brief Description]
 Example: Deployment - Deploy ML Model for Customer Churn on AWS
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the MLOps list (in Sprint or Kanban folder as needed):
+Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the MLOps list (in Sprint or Kanban folder as needed):
  
 
 8.	DevOps
@@ -114,7 +85,7 @@ User Setup - Establish user accounts and permissions.
 Attach Policies - Link policies to roles.
 Note: Here are the 140 examples of DevOps tasks. 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the DevOps list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the DevOps list (in Sprint or Kanban folder as needed):
  
 
 
@@ -123,7 +94,7 @@ Definition: Frontend engineering tasks to do with creating and implementing UI/U
 Format: [Task Type] - [Brief Description]
 Example: Frontend – Implement Landing Page Using React 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering – Frontend list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering – Frontend list (in Sprint or Kanban folder as needed):
  
 
 10. Software Engineering - Backend
@@ -131,7 +102,7 @@ Definition: All software engineering tasks related to the backend e.g., API deve
 Format: [Task Type] - [Brief Description]
 Example: Backend - Pipeline Optimization using FastAPI 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering - Backend list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Software Engineering - Backend list (in Sprint or Kanban folder as needed):
 
  
 
@@ -143,7 +114,7 @@ Code Review - Facebook Script
 Data Validation - Validate Facebook Data in Google Bigquery
 Design QA - Subscription Analytics Dashboard
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Quality Assurance list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Quality Assurance list (in Sprint or Kanban folder as needed):
 
  
 
@@ -152,7 +123,7 @@ Definition: All tasks related to analytics and BI, including dashboard developme
 Format: [Task Type] - [Brief Description]
 Example: Dashboard Development - Subscription Analytics Dashboard on Tableau Containing 20 KPIs
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Analytics/BI list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Analytics/BI list (in Sprint or Kanban folder as needed):
 
  
 
@@ -163,7 +134,7 @@ Example:
 Wire-framing - Subscription Analytics Dashboard Containing 20 KPIs
 High-fidelity Design – Website Signup Page 
 
-	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Product Design list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the relevant client/project space such as Homemade Method or Tripe Tree and select the Product Design list (in Sprint or Kanban folder as needed):
 
  
 
@@ -174,7 +145,7 @@ Definition: Drafting time estimates using the estimation template for a project 
 Format: Estimation - [Brief Description]
 Example: Estimation - Dashboard Development for 20 KPIs
 
-	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
  
 
 11.	Requirement Gathering - Pre-sales 
@@ -182,7 +153,7 @@ Definition: Reading and/or researching a project for a new client to understand 
 Format: Requirement Gathering - [Brief Description]
 Example: Requirement Gathering - User Authentication
 
-	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant pre-sales client list (in Sprint or Kanban folder as needed):
  
 
 12.	POC Development - POCs 
@@ -190,7 +161,7 @@ Definition: Development efforts to create a POC. This would be logged in Pre-sal
 Format: [Task Type] - [Brief Description]
 Example: ETL - Facebook to MySQL using Python
 
-	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant POC client list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Pre-sales & POCs [Engineering] space and select the relevant POC client list (in Sprint or Kanban folder as needed):
  
 
 *Meetings & offline communication will be logged using the nomenclature defined above for client spaces. Unlike a client space, there will not be a separate Meetings list, instead these should be logged in the client specific lists as shown above using the [Meeting Type] - [Meeting Subject[ format.
@@ -204,7 +175,7 @@ Definition: Courses taken on learning platforms such as Coursera and Udemy or in
 Format: Self-Paced Study - [Course or Video Title] on [Learning Platform]
 Example: Self-Paced Study - Python Fundamentals on Coursera
 
-	Where to log these tasks on ClickUp? Go to the Training space and select the Self-Paced Study list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Training space and select the Self-Paced Study list (in Sprint or Kanban folder as needed):
 
  
 
@@ -214,7 +185,7 @@ Definition: Collective team training sessions that take place at DP HQ.
 Format: Team Training - [Brief Description]
 Example: Team Training - Data Storytelling 
 
-	Where to log these tasks on ClickUp? Go to the Training and select the Team Training Sessions list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Training and select the Team Training Sessions list (in Sprint or Kanban folder as needed):
  
 
 15.	External Training Sessions 
@@ -222,7 +193,7 @@ Definition: Training sessions organised by any external body that take place in 
 Format: External Training - [Organiser] - [Brief Description]
 Example: External Training - ClickUp - Project Management Guidelines 
 
-	Where to log these tasks on ClickUp? Go to the Training and select the External Training Sessions list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Training and select the External Training Sessions list (in Sprint or Kanban folder as needed):
  
 
 
@@ -238,7 +209,7 @@ Room Reservation - Biweekly Training
 Event Planning - Preparing Budget Plan for Team Dinner 
 Travel Arrangements - Researching Flight Information for PSW Trip 
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Events & Travel list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Events & Travel list (in Sprint or Kanban folder as needed):
  
 
 (ii) HR Documentation
@@ -246,7 +217,7 @@ Definition: Compiling and submitting HR documents.
 Format: HR Documentation - [Document Type]
 Example: HR Documentation - Annual Leave Application
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the HR Documentation list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the HR Documentation list (in Sprint or Kanban folder as needed):
  
 
 (iii) Hiring 
@@ -257,7 +228,7 @@ Talent Sourcing - HR & Ops Manager
 Candidate Screening - HR & Ops Manager
 Interview - HR & Ops Manager
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Hiring list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Hiring list (in Sprint or Kanban folder as needed):
  
 
 (iv) Office Inventory
@@ -267,7 +238,7 @@ Examples:
 Inventory Assessment - Office Snacks
 Inventory Purchase - Office Snacks
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Office Inventory list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Office Inventory list (in Sprint or Kanban folder as needed):
  
 
 
@@ -278,7 +249,7 @@ Definition: Activities such as games, outings or in-office get togethers underta
 Format: Recreation - [Activity Type]
 Examples: Recreation - Lunch Outing
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Recreation list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Recreation list (in Sprint or Kanban folder as needed):
  
 
 (ii) Team Building
@@ -286,7 +257,7 @@ Definition: Games and exercises that the team partakes in usually to enhance tea
 Format: [Team Building] - [Activity Type]
 Examples: Team Building - Escape Room
 
-	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Team Building list (in Sprint or Kanban folder as needed):
+ 	Where to log these tasks on ClickUp? Go to the Recreation & Administration space and select the Team Building list (in Sprint or Kanban folder as needed):
  
 
 *Meetings & offline communication will be logged using the nomenclature defined above for client spaces. Please note unlike a client space, there will not be a separate list for Meetings, instead those will be logged in the list that the meeting is related to e.g., a meeting related to event planning would be logged in Events & Travel using the [Meeting Type] - [Meeting Subject] format.
@@ -299,7 +270,7 @@ Definition: These include all sprint sessions conducted within the duration of a
 Definition: This is the session held prior to sprint opening to plan sprint individually and/or with one's team members, to present to all stakeholders in sprint opening (dev team usually has this session 10 am to 12 pm every second Monday).
 Format: Internal Meeting - [Meeting Subject] 
 Example: Internal Meeting – Sprint Pre-Planning 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
  
 
 (ii) Sprint Opening
@@ -307,7 +278,7 @@ Definition: All team members sit together with project management team to review
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Sprint Opening 
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
  
 
 (iii) Sprint Closing 
@@ -315,7 +286,7 @@ Definition: This is the last sprint session of a sprint in which engineering and
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Sprint Closing
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
  
 
 (iv) Daily Standup
@@ -323,7 +294,7 @@ Definition: This is the daily update that takes place throughout the sprint.
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Daily Standup
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Engineering] list (in Sprint folder):
  
 
 Sprint Sessions [Product, Mtkg & Pre-sales] - Non-billable 
@@ -333,7 +304,7 @@ Definition: These include all sprint sessions conducted within the duration of a
 Definition: This is the session held prior to sprint opening to plan sprint individually and/or with one's team members, to present to all stakeholders in sprint opening (usually done 10 to 11 am every second Monday).
 Format: Internal Meeting - [Meeting Subject] 
 Example: Internal Meeting – Sprint Pre-Planning 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
  
 
 (ii) Sprint Opening
@@ -341,7 +312,7 @@ Definition: All team members sit together with Adeel and Ali to review sprint pl
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Sprint Opening 
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
  
 
 (iii) Sprint Closing 
@@ -349,7 +320,7 @@ Definition: This is the last sprint session of a sprint in which all team member
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Sprint Closing
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
  
 
 (iv) Daily Standup
@@ -357,7 +328,7 @@ Definition: This is the daily update that takes place throughout the sprint.
 Format: Internal Meeting - [Meeting Subject]
 Examples: Internal Meeting – Daily Standup
 
-	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
+ 	Where to log this on ClickUp? Go to the Sprint Sessions space and select the Sprint Sessions [Product, Mtkg & Pre-sales] list (in Sprint folder):
  
 
 
