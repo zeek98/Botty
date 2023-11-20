@@ -19,8 +19,7 @@ def load_data():
         reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
         docs = reader.load_data()
         service_context = ServiceContext.from_defaults(
-        chunk_size=512, chunk_overlap=50)
-        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="You will give the answers truthfully and do not deviate but if you don't know then say I dont Know as the answer."))
+        chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="You will give the answers truthfully and do not deviate but if you don't know then say I dont Know as the answer."))
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
         query_engine = index.as_query_engine(similarity_top_k=2)
         return index
