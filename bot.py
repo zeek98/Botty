@@ -66,7 +66,9 @@ if index is not None:  # Check if data loading was successful
     if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = st.session_state.chat_engine.retrieve(prompt)
-                st.write(response.response)
-                message = {"role": "assistant", "content": response.response}
-                st.session_state.messages.append(message)
+                if st.session_state.chat_engine.embedding_model.is_available():
+                    query_bundle = st.session_state.chat_engine.query(prompt)
+                    response = st.session_state.chat_engine.retrieve(query_bundle)
+                    st.write(response.response)
+                else:
+                    st.error("The embedding model is not available. Unable to retrieve responses.")
