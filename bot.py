@@ -33,7 +33,8 @@ def load_data():
             # Load data from Excel files
             PandasExcelReader = download_loader("PandasExcelReader")
             loader = PandasExcelReader(pandas_config={"header": 0})
-            docs = loader.load_data(file=Path('./data.xlsx'))
+            # Assuming the sheet name is "2023"
+            docs = loader.load_data(file=Path('./data.xlsx'), sheet_name="2023")
         else:
             # Default to Markdown if the condition is not met
             reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
