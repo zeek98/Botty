@@ -18,7 +18,7 @@ def load_data():
     with st.spinner(text="Loading and indexing the nomenclature – hang tight! This should take 1-2 minutes."):
         reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
         docs = reader.load_data()
-        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.1, system_prompt="You will answer the questions based on the nomenclature in bullet points and do not deviate."))
+        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.1, system_prompt="You will give the answers in bullet points and do not deviate."))
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
         return index
 
