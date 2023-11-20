@@ -1,6 +1,5 @@
 import streamlit as st
-from pathlib import Path
-from llama_index import VectorStoreIndex, ServiceContext, download_loader
+from llama_index import GPTVectorStoreIndex, ServiceContext, download_loader
 from llama_index.llms import OpenAI
 from llama_index import SimpleDirectoryReader
 
@@ -22,28 +21,28 @@ def load_data():
 
         # Change the source type based on the presence of a keyword in the prompt
         if "estimate" in prompt:
-            source_type = "xlsx"
+            source_type = "gsheets"
 
         try:
             if source_type == "md":
                 # Load data from Markdown files
                 reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
                 docs = reader.load_data()
-            elif source_type == "xlsx":
-                # Load data from Excel files
-                PandasExcelReader = download_loader("PandasExcelReader")
-                loader = PandasExcelReader(pandas_config={"header": 0})
-                # Assuming the sheet name is "2023"
-                docs = loader.load_data(file=Path('./data/Energy Consumption Analysis.xlsx'), sheet_name="2023")
+            elif source_type == "gsheets":
+                # Load data from Google Sheets
+                GoogleSheetsReader = download_loader("GoogleSheetsReader")
+                # Use the Google Sheets link and specify the sheet name (e.g., "Sheet1")
+                loader = GoogleSheetsReader(sheet_link="https://docs.google.com/spreadsheets/d/1VikaU0VGE2_8jwAREDQZT1nG7rMia_3l2ttr9Y95VbQ/edit#gid=0", sheet_name="Sheet1")
+                docs = loader.load_data()
             else:
                 # Default to Markdown if the condition is not met
                 raise ValueError(f"Invalid source type: {source_type}")
 
             service_context = ServiceContext.from_defaults(
-                chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="Given the nature of the question, please provide a detailed response based on either the Markdown (.md) files or Excel (.xlsx) data. If the question is related to estimation, use information from Excel; otherwise, use data from Markdown files. Respond truthfully, and if you don't know the answer, indicate so. Thank you!")
+                chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="Given the nature of the question, please provide a detailed response based on either the Markdown (.md) files or Google Sheets data. If the question is related to estimation, use information from Google Sheets; otherwise, use data from Markdown files. Respond truthfully, and if you don't know the answer, indicate so. Thank you!")
             )
 
-            index = VectorStoreIndex.from_documents(docs, service_context=service_context)
+            index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
             query_engine = index.as_query_engine(similarity_top_k=2)
             return index, query_engine
         except Exception as e:
