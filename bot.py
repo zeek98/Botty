@@ -2,7 +2,6 @@ import streamlit as st
 from pathlib import Path
 from llama_index import VectorStoreIndex, ServiceContext, download_loader
 from llama_index.llms import OpenAI
-import openai
 from llama_index import SimpleDirectoryReader
 
 st.set_page_config(page_title="Chat with the DP bot, powered by LlamaIndex", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
