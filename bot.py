@@ -2,7 +2,6 @@ import streamlit as st
 from pathlib import Path
 from llama_index import VectorStoreIndex, ServiceContext, download_loader
 from llama_index.llms import OpenAI
-import openai
 from llama_index import SimpleDirectoryReader
 
 st.set_page_config(page_title="Chat with the DP bot, powered by LlamaIndex", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -38,8 +37,7 @@ def load_data():
                 docs = loader.load_data(file=Path('./data/Energy Consumption Analysis.xlsx'), sheet_name="2023")
             else:
                 # Default to Markdown if the condition is not met
-                reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
-                docs = reader.load_data()
+                raise ValueError(f"Invalid source type: {source_type}")
 
             service_context = ServiceContext.from_defaults(
                 chunk_size=512, chunk_overlap=50, llm=OpenAI(model="gpt-3.5-turbo", temperature=0.2, system_prompt="Given the nature of the question, please provide a detailed response based on either the Markdown (.md) files or Excel (.xlsx) data. If the question is related to estimation, use information from Excel; otherwise, use data from Markdown files. Respond truthfully, and if you don't know the answer, indicate so. Thank you!")
@@ -47,16 +45,16 @@ def load_data():
 
             index = VectorStoreIndex.from_documents(docs, service_context=service_context)
             query_engine = index.as_query_engine(similarity_top_k=2)
-            return index
+            return index, query_engine
         except Exception as e:
             st.error(f"An error occurred while loading data: {e}")
-            return None
+            return None, None
 
-index = load_data()
+index, query_engine = load_data()
 
 if index is not None:  # Check if data loading was successful
     if "chat_engine" not in st.session_state.keys():
-        st.session_state.chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+        st.session_state.chat_engine = query_engine  # Use query engine for chat
 
     if prompt := st.chat_input("Your question"):
         st.session_state.messages.append({"role": "user", "content": prompt})
